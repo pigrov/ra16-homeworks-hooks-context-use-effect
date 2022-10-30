@@ -77,16 +77,11 @@ function App() {
     }, 1000);
   }, [userId]);
 
-  console.log(loader);
-  const error = false;
-
   return (
     <Container>
       <Row>
         <Col>
-          {error && <p>Что-то пошло не так, а вот почему: {error}</p>}
-
-          {!error && <List list={list} getId={getId} />}
+          <List list={list} getId={getId} />
         </Col>
         <Col>
           {loader && <progress />}
