@@ -7,21 +7,17 @@ import { Card, ListGroup } from "react-bootstrap";
 const URL =
   "https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/";
 
-function List() {
-  const [state, setState] = useState([]);
-
-  useEffect(() => {
-    fetch(URL + "users.json")
-      .then((response) => response.json())
-      .then((data) => setState([...data]));
-  }, []);
+function List(props) {
+  const getId = (id) => {
+    props.getId(id);
+  };
 
   return (
     <>
       <ButtonGroup vertical>
-        {state.map((o) => (
+        {props.list.map((o) => (
           <Button
-            onClick={() => Details(o.id)}
+            onClick={() => getId(o.id)}
             id={o.id}
             key={o.id}
             variant="outline-secondary"
@@ -30,34 +26,23 @@ function List() {
           </Button>
         ))}
       </ButtonGroup>
-      {/* <pre>{JSON.stringify(state, null, " ")}</pre> */}
     </>
   );
 }
 
-function Details(id) {
-  console.log("id", id);
-  const [user, setUser] = useState([]);
-
-  useEffect(() => {
-    fetch(URL + "1.json")
-      .then((response) => response.json())
-      .then((data) => setUser(data));
-  }, []);
-
-  console.log(user);
-
+function Details(props) {
+  const user = props.userInfo;
   return (
     <>
       <Card style={{ width: "18rem" }}>
-        <Card.Img variant="top" src={user.avatar} />
+        <Card.Img variant="top" src={user.avatar + "/" + user.id} />
         <Card.Body>
           <Card.Title>{user.name}</Card.Title>
         </Card.Body>
         <ListGroup className="list-group-flush">
-          {/* <ListGroup.Item>City: {user.details.city}</ListGroup.Item>
+          <ListGroup.Item>City: {user.details.city}</ListGroup.Item>
           <ListGroup.Item>Company: {user.details.company}</ListGroup.Item>
-          <ListGroup.Item>Position: {user.details.position}</ListGroup.Item> */}
+          <ListGroup.Item>Position: {user.details.position}</ListGroup.Item>
         </ListGroup>
       </Card>
     </>
@@ -65,14 +50,48 @@ function Details(id) {
 }
 
 function App() {
+  const [list, setList] = useState([]);
+  const [userId, setUserId] = useState();
+  const [userInfo, setUserInfo] = useState();
+  const [loader, setLoader] = useState(true);
+
+  const getId = (value) => {
+    setUserId(value);
+  };
+
+  useEffect(() => {
+    fetch(URL + "users.json")
+      .then((response) => response.json())
+      .then((data) => setList([...data]));
+  }, []);
+
+  useEffect(() => {
+    setLoader(true);
+    setUserInfo();
+    setTimeout(() => {
+      userId &&
+        fetch(URL + userId + ".json")
+          .then((response) => response.json())
+          .then((data) => setUserInfo(data))
+          .then(() => setLoader(false));
+    }, 1000);
+  }, [userId]);
+
+  console.log(loader);
+  const error = false;
+
   return (
     <Container>
       <Row>
         <Col>
-          <List />
+          {error && <p>Что-то пошло не так, а вот почему: {error}</p>}
+
+          {!error && <List list={list} getId={getId} />}
         </Col>
         <Col>
-          <Details />
+          {loader && <progress />}
+
+          {userInfo && <Details userInfo={userInfo} />}
         </Col>
       </Row>
     </Container>
