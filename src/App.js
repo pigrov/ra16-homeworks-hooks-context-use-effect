@@ -66,16 +66,30 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setLoader(true);
-    setUserInfo();
-    setTimeout(() => {
-      userId &&
-        fetch(URL + userId + ".json")
-          .then((response) => response.json())
-          .then((data) => setUserInfo(data))
-          .then(() => setLoader(false));
-    }, 1000);
+    const fetchData = () => {
+      setLoader(true);
+
+      fetch(URL + userId + ".json")
+        .then((response) => response.json())
+        .then((data) => setUserInfo(data))
+        .finally(() => setLoader(false));
+    };
+
+    userId && fetchData();
   }, [userId]);
+
+  // еще вариант
+  // useEffect(() => {
+  //   setLoader(true);
+  //   setUserInfo();
+  //   setTimeout(() => {
+  //     userId &&
+  //       fetch(URL + userId + ".json")
+  //         .then((response) => response.json())
+  //         .then((data) => setUserInfo(data))
+  //         .then(() => setLoader(false));
+  //   }, 1000);
+  // }, [userId]);
 
   return (
     <Container>
